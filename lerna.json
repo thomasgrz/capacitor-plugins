@@ -1,5 +1,6 @@
 {
   "packages": [
+    "camera",
     "haptics",
     "motion",
     "screen-reader",
