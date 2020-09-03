@@ -1,7 +1,7 @@
 {
   "name": "@capacitor/storage",
   "version": "0.0.1",
-  "description": "Storage APIs",
+  "description": "The Storage API provides a simple key/value persistent store for lightweight data.",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -38,12 +38,6 @@
   "peerDependencies": {
     "@capacitor/core": "^3.0.0-alpha.2"
   },
-  "files": [
-    "dist/",
-    "ios/",
-    "android/",
-    "CapacitorStorage.podspec"
-  ],
   "keywords": [
     "capacitor",
     "plugin",
