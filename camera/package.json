@@ -1,7 +1,7 @@
 {
   "name": "@capacitor/camera",
   "version": "0.0.1",
-  "description": "Takes a photo with the camera or selects one from the photo album.",
+  "description": "The Camera API provides the ability to take a photo with the camera or choose an existing one from the photo album.",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -33,7 +33,7 @@
     "@capacitor/core": "next",
     "@capacitor/ios": "next",
     "@ionic/prettier-config": "^1.0.0",
-    "@ionic/swiftlint-config": "^1.0.0",
+    "@ionic/swiftlint-config": "^1.1.2",
     "@rollup/plugin-node-resolve": "^8.1.0",
     "prettier": "^2.0.5",
     "prettier-plugin-java": "^0.8.0",
@@ -54,5 +54,12 @@
     "android": {
       "src": "android"
     }
-  }
+  },
+  "repository": {
+     "type": "git",
+     "url": "https://github.com/ionic-team/capacitor-plugins"
+   },
+   "publishConfig": {
+     "access": "public"
+    }
 }
