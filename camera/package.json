@@ -56,10 +56,10 @@
     }
   },
   "repository": {
-     "type": "git",
-     "url": "https://github.com/ionic-team/capacitor-plugins"
-   },
-   "publishConfig": {
-     "access": "public"
-    }
+    "type": "git",
+    "url": "https://github.com/ionic-team/capacitor-plugins"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }
