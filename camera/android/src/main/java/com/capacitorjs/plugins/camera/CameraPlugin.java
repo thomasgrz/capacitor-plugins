@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * The Camera plugin makes it easy to take a photo or have the user select a photo
  * from their albums.
@@ -38,7 +37,10 @@ import java.util.List;
  *
  * Adapted from https://developer.android.com/training/camera/photobasics.html
  */
-@NativePlugin(name = "Camera", requestCodes = { CameraPlugin.REQUEST_IMAGE_CAPTURE, CameraPlugin.REQUEST_IMAGE_PICK, CameraPlugin.REQUEST_IMAGE_EDIT })
+@NativePlugin(
+    name = "Camera",
+    requestCodes = { CameraPlugin.REQUEST_IMAGE_CAPTURE, CameraPlugin.REQUEST_IMAGE_PICK, CameraPlugin.REQUEST_IMAGE_EDIT }
+)
 public class CameraPlugin extends Plugin {
     // Request codes
     static final int REQUEST_IMAGE_CAPTURE = PluginRequestCodes.CAMERA_IMAGE_CAPTURE;
@@ -98,7 +100,9 @@ public class CameraPlugin extends Plugin {
 
         final CameraBottomSheetDialogFragment fragment = new CameraBottomSheetDialogFragment();
         fragment.setTitle(call.getString("promptLabelHeader", "Photo"));
-        fragment.setOptions(options, index -> {
+        fragment.setOptions(
+            options,
+            index -> {
                 if (index == 0) {
                     settings.setSource(CameraSource.photos);
                     openPhotos(call);
@@ -106,7 +110,8 @@ public class CameraPlugin extends Plugin {
                     settings.setSource(CameraSource.camera);
                     openCamera(call);
                 }
-            }, () -> call.reject("User cancelled photos app")
+            },
+            () -> call.reject("User cancelled photos app")
         );
         fragment.show(getActivity().getSupportFragmentManager(), "capacitorModalsActionSheet");
     }
@@ -396,11 +401,7 @@ public class CameraPlugin extends Plugin {
         }
 
         if (settings.isShouldResize()) {
-            final Bitmap newBitmap = ImageUtils.resize(
-                bitmap,
-                settings.getWidth(),
-                settings.getHeight()
-            );
+            final Bitmap newBitmap = ImageUtils.resize(bitmap, settings.getWidth(), settings.getHeight());
             bitmap = replaceBitmap(bitmap, newBitmap);
         }
 

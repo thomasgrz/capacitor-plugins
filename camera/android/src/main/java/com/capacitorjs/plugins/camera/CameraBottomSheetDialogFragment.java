@@ -8,13 +8,14 @@ import android.view.View;
 import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import java.util.List;
 
 public class CameraBottomSheetDialogFragment extends BottomSheetDialogFragment {
+
     interface BottomSheetOnSelectedListener {
         void onSelected(int index);
     }
@@ -98,12 +99,12 @@ public class CameraBottomSheetDialogFragment extends BottomSheetDialogFragment {
             tv.setPadding(layoutPaddingPx12, layoutPaddingPx12, layoutPaddingPx12, layoutPaddingPx12);
             tv.setText(options.get(i));
             tv.setOnClickListener(
-                    view -> {
-                        if (selectedListener != null) {
-                            selectedListener.onSelected(optionIndex);
-                        }
-                        dismiss();
+                view -> {
+                    if (selectedListener != null) {
+                        selectedListener.onSelected(optionIndex);
                     }
+                    dismiss();
+                }
             );
             layout.addView(tv);
         }

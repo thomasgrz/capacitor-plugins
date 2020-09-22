@@ -50,7 +50,7 @@ internal extension PHAsset {
         options.resizeMode = .none
         options.isNetworkAccessAllowed = false
         options.version = .current
-        
+
         var result: [String: Any] = [:]
         _ = PHCachingImageManager().requestImageData(for: self, options: options) { (data, _, _, _) in
             if let data = data as NSData? {
@@ -76,15 +76,13 @@ internal extension UIImage {
         var maxWidth: CGFloat
         if let size = size, size.width > 0 {
             maxWidth = size.width
-        }
-        else {
+        } else {
             maxWidth = imageWidth
         }
         let maxHeight: CGFloat
         if let size = size, size.height > 0 {
             maxHeight = size.height
-        }
-        else {
+        } else {
             maxHeight = imageHeight
         }
         // adjust to preserve aspect ratio
@@ -99,7 +97,7 @@ internal extension UIImage {
         format.scale = 1.0
         format.opaque = false
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: targetWidth, height: targetHeight), format: format)
-        return renderer.image { (context) in
+        return renderer.image { (_) in
             self.draw(in: CGRect(origin: .zero, size: CGSize(width: targetWidth, height: targetHeight)))
         }
     }

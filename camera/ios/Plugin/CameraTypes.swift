@@ -24,7 +24,7 @@ struct CameraPromptText {
     let photoAction: String
     let cameraAction: String
     let cancelAction: String
-    
+
     init(title: String? = nil, photoAction: String? = nil, cameraAction: String? = nil, cancelAction: String? = nil) {
         self.title = title ?? "Photo"
         self.photoAction = photoAction ?? "From Photos"
@@ -64,7 +64,7 @@ internal enum CameraPropertyListKeys: String, CaseIterable {
     case photoLibraryAddUsage = "NSPhotoLibraryAddUsageDescription"
     case photoLibraryUsage = "NSPhotoLibraryUsageDescription"
     case cameraUsage = "NSCameraUsageDescription"
-    
+
     var link: String {
         switch self {
         case .photoLibraryAddUsage:
@@ -75,57 +75,55 @@ internal enum CameraPropertyListKeys: String, CaseIterable {
             return "https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW24"
         }
     }
-    
+
     var missingMessage: String {
         return "You are missing \(self.rawValue) in your Info.plist file." +
-        " Camera will not function without it. Learn more: \(self.link)"
+            " Camera will not function without it. Learn more: \(self.link)"
     }
 }
 
 internal struct PhotoFlags: OptionSet {
     let rawValue: Int
-    
+
     static let edited = PhotoFlags(rawValue: 1 << 0)
     static let gallery = PhotoFlags(rawValue: 1 << 1)
-    
+
     static let all: PhotoFlags = [.edited, .gallery]
 }
 
 internal struct ProcessedImage {
     var image: UIImage
     var metadata: [String: Any]
-    
+
     var exifData: [String: Any] {
         var exifData = metadata["{Exif}"] as? [String: Any]
         exifData?["Orientation"] = metadata["Orientation"]
         exifData?["GPS"] = metadata["{GPS}"]
         return exifData ?? [:]
     }
-    
+
     mutating func overwriteMetadataOrientation(to orientation: Int) {
         let original = metadata
         replaceDictionaryOrientation(atNode: &metadata, to: orientation)
-        
+
         if (original as NSDictionary).isEqual(to: metadata) {
             print("dictionary is unchanged")
-        }
-        else {
+        } else {
             print("dictionaries no longer match")
         }
     }
-    
+
     func replaceDictionaryOrientation(atNode node: inout [String: Any], to orientation: Int) {
         for key in node.keys {
             if key == "Orientation", let _ = node[key] as? Int {
                 node[key] = orientation
-            }
-            else if var child = node[key] as? [String: Any] {
+            } else if var child = node[key] as? [String: Any] {
                 replaceDictionaryOrientation(atNode: &child, to: orientation)
                 node[key] = child
             }
         }
     }
-    
+
     func generateJPEG(with quality: CGFloat) -> Data? {
         // convert the UIImage to a jpeg
         guard let data = self.image.jpegData(compressionQuality: quality) else {

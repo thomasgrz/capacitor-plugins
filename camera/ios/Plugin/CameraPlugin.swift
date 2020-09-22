@@ -7,12 +7,12 @@ public class CameraPlugin: CAPPlugin {
     private var call: CAPPluginCall?
     private var settings = CameraSettings()
     private var imagePicker: UIImagePickerController?
-    
+
     private let defaultSource = CameraSource.prompt
     private let defaultDirection = CameraDirection.rear
 
     private var imageCounter = 0
-    
+
     @objc func checkPermissions(_ call: CAPPluginCall) {
         var result: [String: Any] = [:]
         for permission in CameraPermissionType.allCases {
@@ -27,7 +27,7 @@ public class CameraPlugin: CAPPlugin {
         }
         call.resolve(result)
     }
-    
+
     @objc func requestPermissions(_ call: CAPPluginCall) {
         // get the list of desired types, if passed
         let typeList = call.getArray("types", String.self)?.compactMap({ (type) -> CameraPermissionType? in
@@ -58,7 +58,7 @@ public class CameraPlugin: CAPPlugin {
             call.resolve(result)
         }
     }
-    
+
     @objc func getPhoto(_ call: CAPPluginCall) {
         self.call = call
         self.settings = cameraSettings(from: call)
@@ -75,7 +75,7 @@ public class CameraPlugin: CAPPlugin {
             self.imagePicker = UIImagePickerController()
             self.imagePicker?.delegate = self
             self.imagePicker?.allowsEditing = self.settings.allowEditing
-            
+
             switch self.settings.source {
             case .prompt:
                 self.showPrompt()
@@ -86,7 +86,7 @@ public class CameraPlugin: CAPPlugin {
             }
         }
     }
-    
+
     private func checkUsageDescriptions() -> String? {
         if let dict = Bundle.main.infoDictionary {
             for key in CameraPropertyListKeys.allCases {
@@ -97,7 +97,7 @@ public class CameraPlugin: CAPPlugin {
         }
         return nil
     }
-    
+
     private func cameraSettings(from call: CAPPluginCall) -> CameraSettings {
         var settings = CameraSettings()
         settings.jpegQuality = min(abs(CGFloat(call.getFloat("quality") ?? 100.0)) / 100.0, 1.0)
@@ -118,14 +118,13 @@ public class CameraPlugin: CAPPlugin {
         }
         settings.shouldCorrectOrientation = call.getBool("correctOrientation") ?? true
         settings.userPromptText = CameraPromptText(title: call.getString("promptLabelHeader"), photoAction: call.getString("promptLabelPhoto"), cameraAction: call.getString("promptLabelPicture"), cancelAction: call.getString("promptLabelCancel"))
-        
+
         if let styleString = call.getString("presentationStyle"), styleString == "popover" {
             settings.presentationStyle = .popover
-        }
-        else {
+        } else {
             settings.presentationStyle = .fullScreen
         }
-        
+
         return settings
     }
 }
@@ -146,17 +145,17 @@ extension CameraPlugin: UIImagePickerControllerDelegate, UINavigationControllerD
     }
 
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-        
+
         guard let processedImage = self.processImage(from: info) else {
             self.call?.reject("Error processing image")
             return
         }
-        
+
         guard let jpeg = processedImage.generateJPEG(with: settings.jpegQuality) else {
             self.call?.reject("Unable to convert image to jpeg")
             return
         }
-        
+
         if settings.resultType == CameraResultType.base64 {
             call?.resolve([
                 "base64String": jpeg.base64EncodedString(),
@@ -201,7 +200,7 @@ private extension CameraPlugin {
         alert.addAction(UIAlertAction(title: settings.userPromptText.cancelAction, style: .cancel, handler: { [weak self] (_: UIAlertAction) in
             self?.call?.reject("User cancelled photos app")
         }))
-        
+
         self.bridge?.viewController?.present(alert, animated: true, completion: nil)
     }
 
@@ -229,14 +228,13 @@ private extension CameraPlugin {
                     // select the input
                     if settings.direction == .rear, UIImagePickerController.isCameraDeviceAvailable(.rear) {
                         imagePicker.cameraDevice = .rear
-                    }
-                    else if settings.direction == .front, UIImagePickerController.isCameraDeviceAvailable(.front) {
+                    } else if settings.direction == .front, UIImagePickerController.isCameraDeviceAvailable(.front) {
                         imagePicker.cameraDevice = .front
                     }
                     // present
                     imagePicker.modalPresentationStyle = settings.presentationStyle
                     imagePicker.sourceType = .camera
-                    
+
                     self?.bridge?.viewController?.present(imagePicker, animated: true, completion: nil)
                 }
             } else {
@@ -255,15 +253,13 @@ private extension CameraPlugin {
         // we either already have permission or can prompt
         if authStatus == .authorized {
             presentPhotoPicker()
-        }
-        else {
+        } else {
             PHPhotoLibrary.requestAuthorization({ [weak self] (status) in
                 if status == PHAuthorizationStatus.authorized {
                     DispatchQueue.main.async { [weak self] in
                         self?.presentPhotoPicker()
                     }
-                }
-                else {
+                } else {
                     self?.call?.reject("User denied access to photos")
                 }
             })
@@ -282,7 +278,7 @@ private extension CameraPlugin {
         self.imagePicker!.sourceType = .photoLibrary
         self.bridge?.viewController?.present(self.imagePicker!, animated: true, completion: nil)
     }
-    
+
     func saveTemporaryImage(_ data: Data) throws -> String {
         var url: URL
         repeat {
@@ -293,19 +289,17 @@ private extension CameraPlugin {
         try data.write(to: url, options: .atomic)
         return url.absoluteString
     }
-    
-    func processImage(from info: [UIImagePickerController.InfoKey : Any]) -> ProcessedImage? {
+
+    func processImage(from info: [UIImagePickerController.InfoKey: Any]) -> ProcessedImage? {
         // get the image
         var result: ProcessedImage
         var flags: PhotoFlags = []
         if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
             result = ProcessedImage(image: image, metadata: [:]) // use the edited version
             flags = flags.union([.edited])
-        }
-        else if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+        } else if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             result = ProcessedImage(image: image, metadata: [:]) // use the original version
-        }
-        else {
+        } else {
             return nil
         }
         // get the image's metadata from the picker or from the photo album
@@ -320,8 +314,7 @@ private extension CameraPlugin {
         if settings.shouldResize, settings.width > 0 || settings.height > 0 {
             result.image = result.image.reformat(to: CGSize(width: settings.width, height: settings.height))
             result.overwriteMetadataOrientation(to: 1)
-        }
-        else if settings.shouldCorrectOrientation {
+        } else if settings.shouldCorrectOrientation {
             // resizing implicitly reformats the image so this is only needed if we aren't resizing
             result.image = result.image.reformat()
             result.overwriteMetadataOrientation(to: 1)
@@ -330,7 +323,7 @@ private extension CameraPlugin {
         if settings.saveToGallery, flags.contains(.edited) == true, flags.contains(.gallery) == false {
             UIImageWriteToSavedPhotosAlbum(result.image, nil, nil, nil)
         }
-        
+
         return result
     }
 }

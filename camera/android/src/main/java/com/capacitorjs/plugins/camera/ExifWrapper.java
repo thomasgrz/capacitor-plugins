@@ -1,8 +1,9 @@
 package com.capacitorjs.plugins.camera;
 
-import com.getcapacitor.JSObject;
-import androidx.exifinterface.media.ExifInterface;
 import static androidx.exifinterface.media.ExifInterface.*;
+
+import androidx.exifinterface.media.ExifInterface;
+import com.getcapacitor.JSObject;
 
 public class ExifWrapper {
     private final ExifInterface exif;
