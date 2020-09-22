@@ -1,3 +1,5 @@
+import {} from '@capacitor/core';
+
 declare module '@capacitor/core' {
   interface PluginRegistry {
     Camera: CameraPlugin;
@@ -97,17 +99,6 @@ export interface CameraOptions {
   promptLabelPicture?: string;
 }
 
-export enum CameraSource {
-  Prompt = 'PROMPT',
-  Camera = 'CAMERA',
-  Photos = 'PHOTOS',
-}
-
-export enum CameraDirection {
-  Rear = 'REAR',
-  Front = 'FRONT',
-}
-
 export interface CameraPhoto {
   /**
    * The base64 encoded string representation of the image, if using CameraResultType.Base64.
@@ -140,8 +131,8 @@ export interface CameraPhoto {
   format: string;
 }
 
-export enum CameraResultType {
-  Uri = 'uri',
-  Base64 = 'base64',
-  DataUrl = 'dataUrl',
-}
+export type CameraSource = 'prompt' | 'camera' | 'photos';
+
+export type CameraDirection = 'rear' | 'front';
+
+export type CameraResultType = 'uri' | 'base64' | 'dataUrl';

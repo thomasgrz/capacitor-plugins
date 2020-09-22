@@ -1,12 +1,5 @@
 import { WebPlugin } from '@capacitor/core';
-import {
-  CameraPlugin,
-  CameraPhoto,
-  CameraOptions,
-  CameraResultType,
-  CameraDirection,
-  CameraSource,
-} from './definitions';
+import { CameraPlugin, CameraPhoto, CameraOptions } from './definitions';
 
 export class CameraWeb extends WebPlugin implements CameraPlugin {
   constructor() {
@@ -71,14 +64,11 @@ export class CameraWeb extends WebPlugin implements CameraPlugin {
     input.accept = 'image/*';
     (input as any).capture = true;
 
-    if (
-      options.source === CameraSource.Photos ||
-      options.source === CameraSource.Prompt
-    ) {
+    if (options.source === 'photos' || options.source === 'prompt') {
       input.removeAttribute('capture');
-    } else if (options.direction === CameraDirection.Front) {
+    } else if (options.direction === 'front') {
       (input as any).capture = 'user';
-    } else if (options.direction === CameraDirection.Rear) {
+    } else if (options.direction === 'rear') {
       (input as any).capture = 'environment';
     }
 
@@ -92,19 +82,16 @@ export class CameraWeb extends WebPlugin implements CameraPlugin {
         format = 'gif';
       }
 
-      if (
-        options.resultType === CameraResultType.DataUrl ||
-        options.resultType === CameraResultType.Base64
-      ) {
+      if (options.resultType === 'dataUrl' || options.resultType === 'base64') {
         const reader = new FileReader();
 
         reader.addEventListener('load', () => {
-          if (options.resultType === CameraResultType.DataUrl) {
+          if (options.resultType === 'dataUrl') {
             resolve({
               dataUrl: reader.result,
               format,
             } as CameraPhoto);
-          } else if (options.resultType === CameraResultType.Base64) {
+          } else if (options.resultType === 'base64') {
             const b64 = (reader.result as string).split(',')[1];
             resolve({
               base64String: b64,
@@ -132,7 +119,7 @@ export class CameraWeb extends WebPlugin implements CameraPlugin {
     return new Promise<CameraPhoto>((resolve, reject) => {
       var reader = new FileReader();
       var format = photo.type.split('/')[1];
-      if (options.resultType === CameraResultType.Uri) {
+      if (options.resultType === 'uri') {
         resolve({
           webPath: URL.createObjectURL(photo),
           format: format,
@@ -141,7 +128,7 @@ export class CameraWeb extends WebPlugin implements CameraPlugin {
         reader.readAsDataURL(photo);
         reader.onloadend = () => {
           const r = reader.result as string;
-          if (options.resultType === CameraResultType.DataUrl) {
+          if (options.resultType === 'dataUrl') {
             resolve({
               dataUrl: r,
               format: format,

@@ -4,7 +4,14 @@ import {
   registerPlugin,
 } from '@capacitor/core';
 
-import { CameraPlugin } from './definitions';
+import {
+  CameraPlugin,
+  CameraOptions,
+  CameraDirection,
+  CameraPhoto,
+  CameraResultType,
+  CameraSource,
+} from './definitions';
 import { CameraWeb } from './web';
 
 const implementations: PluginImplementations<CameraPlugin> = {
@@ -13,9 +20,13 @@ const implementations: PluginImplementations<CameraPlugin> = {
   web: new CameraWeb(),
 };
 
-const Camera = registerPlugin(
-  'Camera',
-  implementations,
-).getImplementation();
+const Camera = registerPlugin('Camera', implementations).getImplementation();
 
-export { Camera };
+export {
+  Camera,
+  CameraOptions,
+  CameraDirection,
+  CameraPhoto,
+  CameraResultType,
+  CameraSource,
+};
