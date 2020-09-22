@@ -1,10 +1,12 @@
 {
   "packages": [
     "camera",
+    "clipboard",
     "haptics",
     "motion",
     "network",
     "screen-reader",
+    "share",
     "storage",
     "text-zoom"
   ],
