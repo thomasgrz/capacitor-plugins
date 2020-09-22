@@ -1,4 +1,4 @@
-package com.getcapacitor.plugin.camera;
+package com.capacitorjs.plugins.camera;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -16,50 +16,14 @@ import java.io.InputStream;
 public class ImageUtils {
 
     /**
-     * Resize an image to the given width and height.
+     * Resize an image to the given width and height considering the preserveAspectRatio flag.
      * @param bitmap
      * @param width
      * @param height
      * @return a new, scaled Bitmap
      */
     public static Bitmap resize(Bitmap bitmap, final int width, final int height) {
-        return ImageUtils.resize(bitmap, width, height, false);
-    }
-
-    /**
-     * Resize an image to the given width and height considering the preserveAspectRatio flag.
-     * @param bitmap
-     * @param width
-     * @param height
-     * @param preserveAspectRatio
-     * @return a new, scaled Bitmap
-     */
-    public static Bitmap resize(Bitmap bitmap, final int width, final int height, final boolean preserveAspectRatio) {
-        if (preserveAspectRatio) {
-            return ImageUtils.resizePreservingAspectRatio(bitmap, width, height);
-        }
-        return ImageUtils.resizeImageWithoutPreservingAspectRatio(bitmap, width, height);
-    }
-
-    /**
-     * Resize an image to the given width and height. Leave one dimension 0 to
-     * perform an aspect-ratio scale on the provided dimension.
-     * @param bitmap
-     * @param width
-     * @param height
-     * @return a new, scaled Bitmap
-     */
-    private static Bitmap resizeImageWithoutPreservingAspectRatio(Bitmap bitmap, final int width, final int height) {
-        float aspect = bitmap.getWidth() / (float) bitmap.getHeight();
-        if (width > 0 && height > 0) {
-            return Bitmap.createScaledBitmap(bitmap, width, height, false);
-        } else if (width > 0) {
-            return Bitmap.createScaledBitmap(bitmap, width, (int) (width * 1 / aspect), false);
-        } else if (height > 0) {
-            return Bitmap.createScaledBitmap(bitmap, (int) (height * aspect), height, false);
-        }
-
-        return bitmap;
+        return ImageUtils.resizePreservingAspectRatio(bitmap, width, height);
     }
 
     /**
@@ -147,7 +111,7 @@ public class ImageUtils {
         try (InputStream iStream = c.getContentResolver().openInputStream(imageUri)) {
             final ExifInterface exifInterface = new ExifInterface(iStream);
 
-            final int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+            final int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
 
             if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
                 result = 90;

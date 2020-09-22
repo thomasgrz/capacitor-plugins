@@ -1,4 +1,4 @@
-package com.getcapacitor.plugin.camera;
+package com.capacitorjs.plugins.camera;
 
 public class CameraSettings {
     public static final int DEFAULT_QUALITY = 90;
@@ -13,8 +13,7 @@ public class CameraSettings {
     private boolean allowEditing = false;
     private int width = 0;
     private int height = 0;
-    private CameraSource source = CameraSource.PROMPT;
-    private boolean preserveAspectRatio = false;
+    private CameraSource source = CameraSource.prompt;
 
     public CameraResultType getResultType() {
         return resultType;
@@ -86,13 +85,5 @@ public class CameraSettings {
 
     public void setSource(CameraSource source) {
         this.source = source;
-    }
-
-    public void setPreserveAspectRatio(boolean preserveAspectRatio) {
-        this.preserveAspectRatio = preserveAspectRatio;
-    }
-
-    public boolean getPreserveAspectRatio() {
-        return this.preserveAspectRatio;
     }
 }

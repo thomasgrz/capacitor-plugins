@@ -1,4 +1,4 @@
-package com.getcapacitor.plugin.camera;
+package com.capacitorjs.plugins.camera;
 
 import android.app.Activity;
 import android.net.Uri;

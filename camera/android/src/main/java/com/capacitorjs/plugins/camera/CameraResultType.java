@@ -1,4 +1,4 @@
-package com.getcapacitor.plugin.camera;
+package com.capacitorjs.plugins.camera;
 
 public enum CameraResultType {
     BASE64("base64"),

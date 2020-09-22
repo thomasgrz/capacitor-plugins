@@ -1,25 +1,5 @@
 package com.capacitorjs.plugins.camera;
 
-// import com.getcapacitor.JSObject;
-// import com.getcapacitor.NativePlugin;
-// import com.getcapacitor.Plugin;
-// import com.getcapacitor.PluginCall;
-// import com.getcapacitor.PluginMethod;
-// 
-// @NativePlugin(name = "Camera")
-// public class CameraPlugin extends Plugin {
-//     private Camera implementation = new Camera();
-// 
-//     @PluginMethod
-//     public void echo(PluginCall call) {
-//         String value = call.getString("value");
-// 
-//         JSObject ret = new JSObject();
-//         ret.put("value", implementation.echo(value));
-//         call.resolve(ret);
-//     }
-// }
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
@@ -31,7 +11,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import androidx.core.content.FileProvider;
-import com.getcapacitor.Dialogs;
 import com.getcapacitor.FileUtils;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Logger;
@@ -40,12 +19,6 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.PluginRequestCodes;
-import com.getcapacitor.plugin.camera.CameraResultType;
-import com.getcapacitor.plugin.camera.CameraSettings;
-import com.getcapacitor.plugin.camera.CameraSource;
-import com.getcapacitor.plugin.camera.CameraUtils;
-import com.getcapacitor.plugin.camera.ExifWrapper;
-import com.getcapacitor.plugin.camera.ImageUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -53,6 +26,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * The Camera plugin makes it easy to take a photo or have the user select a photo
@@ -62,8 +38,8 @@ import java.io.InputStream;
  *
  * Adapted from https://developer.android.com/training/camera/photobasics.html
  */
-@NativePlugin(requestCodes = { Camera.REQUEST_IMAGE_CAPTURE, Camera.REQUEST_IMAGE_PICK, Camera.REQUEST_IMAGE_EDIT })
-public class Camera extends Plugin {
+@NativePlugin(name = "Camera", requestCodes = { CameraPlugin.REQUEST_IMAGE_CAPTURE, CameraPlugin.REQUEST_IMAGE_PICK, CameraPlugin.REQUEST_IMAGE_EDIT })
+public class CameraPlugin extends Plugin {
     // Request codes
     static final int REQUEST_IMAGE_CAPTURE = PluginRequestCodes.CAMERA_IMAGE_CAPTURE;
     static final int REQUEST_IMAGE_PICK = PluginRequestCodes.CAMERA_IMAGE_PICK;
@@ -99,13 +75,13 @@ public class Camera extends Plugin {
 
     private void doShow(PluginCall call) {
         switch (settings.getSource()) {
-            case PROMPT:
+            case prompt:
                 showPrompt(call);
                 break;
-            case CAMERA:
+            case camera:
                 showCamera(call);
                 break;
-            case PHOTOS:
+            case photos:
                 showPhotos(call);
                 break;
             default:
@@ -116,34 +92,28 @@ public class Camera extends Plugin {
 
     private void showPrompt(final PluginCall call) {
         // We have all necessary permissions, open the camera
-        String promptLabelPhoto = call.getString("promptLabelPhoto", "From Photos");
-        String promptLabelPicture = call.getString("promptLabelPicture", "Take Picture");
+        List<String> options = new ArrayList<String>();
+        options.add(call.getString("promptLabelPhoto", "From Photos"));
+        options.add(call.getString("promptLabelPicture", "Take Picture"));
 
-        JSObject fromPhotos = new JSObject();
-        fromPhotos.put("title", promptLabelPhoto);
-        JSObject takePicture = new JSObject();
-        takePicture.put("title", promptLabelPicture);
-        Object[] options = new Object[] { fromPhotos, takePicture };
-
-        Dialogs.actions(
-            getActivity(),
-            options,
-            index -> {
+        final CameraBottomSheetDialogFragment fragment = new CameraBottomSheetDialogFragment();
+        fragment.setTitle(call.getString("promptLabelHeader", "Photo"));
+        fragment.setOptions(options, index -> {
                 if (index == 0) {
-                    settings.setSource(CameraSource.PHOTOS);
+                    settings.setSource(CameraSource.photos);
                     openPhotos(call);
                 } else if (index == 1) {
-                    settings.setSource(CameraSource.CAMERA);
+                    settings.setSource(CameraSource.camera);
                     openCamera(call);
                 }
-            },
-            () -> call.error("User cancelled photos app")
+            }, () -> call.reject("User cancelled photos app")
         );
+        fragment.show(getActivity().getSupportFragmentManager(), "capacitorModalsActionSheet");
     }
 
     private void showCamera(final PluginCall call) {
-        if (!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-            call.error(NO_CAMERA_ERROR);
+        if (!getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+            call.reject(NO_CAMERA_ERROR);
             return;
         }
         openCamera(call);
@@ -195,11 +165,11 @@ public class Camera extends Plugin {
         settings.setHeight(call.getInt("height", 0));
         settings.setShouldResize(settings.getWidth() > 0 || settings.getHeight() > 0);
         settings.setShouldCorrectOrientation(call.getBoolean("correctOrientation", CameraSettings.DEFAULT_CORRECT_ORIENTATION));
-        settings.setPreserveAspectRatio(call.getBoolean("preserveAspectRatio", false));
         try {
-            settings.setSource(CameraSource.valueOf(call.getString("source", CameraSource.PROMPT.getSource())));
+            String foo = CameraSource.prompt.getSource();
+            settings.setSource(CameraSource.valueOf(call.getString("source", CameraSource.prompt.getSource())));
         } catch (IllegalArgumentException ex) {
-            settings.setSource(CameraSource.PROMPT);
+            settings.setSource(CameraSource.prompt);
         }
         return settings;
     }
@@ -219,7 +189,7 @@ public class Camera extends Plugin {
     public void openCamera(final PluginCall call) {
         if (checkCameraPermissions(call)) {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            if (takePictureIntent.resolveActivity(getContext().getPackageManager()) != null) {
                 // If we will be saving the photo, send the target file along
                 try {
                     String appId = getAppId();
@@ -229,13 +199,13 @@ public class Camera extends Plugin {
                     imageFileUri = FileProvider.getUriForFile(getActivity(), appId + ".fileprovider", photoFile);
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageFileUri);
                 } catch (Exception ex) {
-                    call.error(IMAGE_FILE_SAVE_ERROR, ex);
+                    call.reject(IMAGE_FILE_SAVE_ERROR, ex);
                     return;
                 }
 
                 startActivityForResult(call, takePictureIntent, REQUEST_IMAGE_CAPTURE);
             } else {
-                call.error(NO_CAMERA_ACTIVITY_ERROR);
+                call.reject(NO_CAMERA_ACTIVITY_ERROR);
             }
         }
     }
@@ -250,7 +220,7 @@ public class Camera extends Plugin {
 
     public void processCameraImage(PluginCall call) {
         if (imageFileSavePath == null) {
-            call.error(IMAGE_PROCESS_NO_FILE_ERROR);
+            call.reject(IMAGE_PROCESS_NO_FILE_ERROR);
             return;
         }
         // Load the image as a Bitmap
@@ -260,7 +230,7 @@ public class Camera extends Plugin {
         Bitmap bitmap = BitmapFactory.decodeFile(imageFileSavePath, bmOptions);
 
         if (bitmap == null) {
-            call.error("User cancelled photos app");
+            call.reject("User cancelled photos app");
             return;
         }
 
@@ -269,7 +239,7 @@ public class Camera extends Plugin {
 
     public void processPickedImage(PluginCall call, Intent data) {
         if (data == null) {
-            call.error("No image picked");
+            call.reject("No image picked");
             return;
         }
 
@@ -278,7 +248,7 @@ public class Camera extends Plugin {
         InputStream imageStream = null;
 
         try {
-            imageStream = getActivity().getContentResolver().openInputStream(u);
+            imageStream = getContext().getContentResolver().openInputStream(u);
             Bitmap bitmap = BitmapFactory.decodeStream(imageStream);
 
             if (bitmap == null) {
@@ -288,9 +258,9 @@ public class Camera extends Plugin {
 
             returnResult(call, bitmap, u);
         } catch (OutOfMemoryError err) {
-            call.error("Out of memory");
+            call.reject("Out of memory");
         } catch (FileNotFoundException ex) {
-            call.error("No such image found", ex);
+            call.reject("No such image found", ex);
         } finally {
             if (imageStream != null) {
                 try {
@@ -316,7 +286,7 @@ public class Camera extends Plugin {
         if (!filename.contains(".jpg") && !filename.contains(".jpeg")) {
             filename += "." + (new java.util.Date()).getTime() + ".jpeg";
         }
-        File cacheDir = getActivity().getCacheDir();
+        File cacheDir = getContext().getCacheDir();
         File outFile = new File(cacheDir, filename);
         FileOutputStream fos = new FileOutputStream(outFile);
         byte[] buffer = new byte[1024];
@@ -358,7 +328,7 @@ public class Camera extends Plugin {
             try {
                 String fileToSavePath = imageEditedFileSavePath != null ? imageEditedFileSavePath : imageFileSavePath;
                 File fileToSave = new File(fileToSavePath);
-                MediaStore.Images.Media.insertImage(getActivity().getContentResolver(), fileToSavePath, fileToSave.getName(), "");
+                MediaStore.Images.Media.insertImage(getContext().getContentResolver(), fileToSavePath, fileToSave.getName(), "");
             } catch (FileNotFoundException e) {
                 Logger.error(getLogTag(), IMAGE_GALLERY_SAVE_ERROR, e);
             }
@@ -429,8 +399,7 @@ public class Camera extends Plugin {
             final Bitmap newBitmap = ImageUtils.resize(
                 bitmap,
                 settings.getWidth(),
-                settings.getHeight(),
-                settings.getPreserveAspectRatio()
+                settings.getHeight()
             );
             bitmap = replaceBitmap(bitmap, newBitmap);
         }
@@ -486,7 +455,7 @@ public class Camera extends Plugin {
             String perm = permissions[i];
             if (result == PackageManager.PERMISSION_DENIED) {
                 Logger.debug(getLogTag(), "User denied camera permission: " + perm);
-                savedCall.error(PERMISSION_DENIED_ERROR);
+                savedCall.reject(PERMISSION_DENIED_ERROR);
                 return;
             }
         }
@@ -536,10 +505,10 @@ public class Camera extends Plugin {
             if (editIntent != null) {
                 startActivityForResult(call, editIntent, REQUEST_IMAGE_EDIT);
             } else {
-                call.error(IMAGE_EDIT_ERROR);
+                call.reject(IMAGE_EDIT_ERROR);
             }
         } catch (Exception ex) {
-            call.error(IMAGE_EDIT_ERROR, ex);
+            call.reject(IMAGE_EDIT_ERROR, ex);
         }
     }
 
