@@ -13,8 +13,13 @@
     "native"
   ],
   "scripts": {
-    "lint": "npm run prettier -- --check && npm run swiftlint -- lint",
-    "fmt": "npm run prettier -- --write && npm run swiftlint -- autocorrect --format",
+    "verify": "npm run verify:ios && npm run verify:android && npm run verify:web",
+    "verify:ios": "cd ios && pod install && xcodebuild -workspace Plugin.xcworkspace -scheme Plugin && cd ..",
+    "verify:android": "cd android && ./gradlew clean build test && cd ..",
+    "verify:web": "npm run build",
+    "lint": "npm run eslint && npm run prettier -- --check && npm run swiftlint -- lint",
+    "fmt": "npm run eslint -- --fix && npm run prettier -- --write && npm run swiftlint -- autocorrect --format",
+    "eslint": "eslint . --ext ts",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
     "swiftlint": "node-swiftlint",
     "build": "npm run clean && tsc && rollup -c rollup.config.js",
@@ -32,9 +37,11 @@
     "@capacitor/android": "next",
     "@capacitor/core": "next",
     "@capacitor/ios": "next",
+    "@ionic/eslint-config": "^0.2.1",
     "@ionic/prettier-config": "^1.0.0",
     "@ionic/swiftlint-config": "^1.1.2",
     "@rollup/plugin-node-resolve": "^8.1.0",
+    "eslint": "^7.8.1",
     "prettier": "^2.0.5",
     "prettier-plugin-java": "^0.8.0",
     "rimraf": "^3.0.0",
@@ -47,6 +54,9 @@
   },
   "prettier": "@ionic/prettier-config",
   "swiftlint": "@ionic/swiftlint-config",
+  "eslintConfig": {
+    "extends": "@ionic/eslint-config/recommended"
+  },
   "capacitor": {
     "ios": {
       "src": "ios"
