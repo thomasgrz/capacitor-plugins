@@ -1,11 +1,8 @@
-import {
-  Plugins,
-  PluginImplementations,
-  registerPlugin,
-} from '@capacitor/core';
+import type { PluginImplementations } from '@capacitor/core';
+import { Plugins, registerPlugin } from '@capacitor/core';
 
+import type { CameraPlugin } from './definitions';
 import {
-  CameraPlugin,
   CameraOptions,
   CameraDirection,
   CameraPhoto,

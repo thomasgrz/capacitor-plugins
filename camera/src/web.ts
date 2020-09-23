@@ -1,5 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
-import { CameraPlugin, CameraPhoto, CameraOptions } from './definitions';
+
+import type { CameraPlugin, CameraPhoto, CameraOptions } from './definitions';
 
 export class CameraWeb extends WebPlugin implements CameraPlugin {
   constructor() {
@@ -7,7 +8,7 @@ export class CameraWeb extends WebPlugin implements CameraPlugin {
   }
 
   async getPhoto(options: CameraOptions): Promise<CameraPhoto> {
-    return new Promise<CameraPhoto>(async (resolve, reject) => {
+    return new Promise<CameraPhoto>((resolve, reject) => {
       if (options.webUseInput) {
         this.fileInputExperience(options, resolve);
       } else {
@@ -51,7 +52,7 @@ export class CameraWeb extends WebPlugin implements CameraPlugin {
     ) as HTMLInputElement;
 
     const cleanup = () => {
-      input.parentNode && input.parentNode.removeChild(input);
+      input.parentNode?.removeChild(input);
     };
 
     if (!input) {
@@ -117,8 +118,8 @@ export class CameraWeb extends WebPlugin implements CameraPlugin {
 
   private _getCameraPhoto(photo: Blob, options: CameraOptions) {
     return new Promise<CameraPhoto>((resolve, reject) => {
-      var reader = new FileReader();
-      var format = photo.type.split('/')[1];
+      const reader = new FileReader();
+      const format = photo.type.split('/')[1];
       if (options.resultType === 'uri') {
         resolve({
           webPath: URL.createObjectURL(photo),
