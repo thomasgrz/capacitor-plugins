@@ -9,6 +9,7 @@ import {
   CameraResultType,
   CameraSource,
 } from './definitions';
+
 import { CameraWeb } from './web';
 
 const implementations: PluginImplementations<CameraPlugin> = {
