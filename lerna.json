@@ -2,6 +2,7 @@
   "packages": [
     "camera",
     "clipboard",
+    "device",
     "haptics",
     "motion",
     "network",
