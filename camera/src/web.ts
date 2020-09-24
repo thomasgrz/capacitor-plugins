@@ -8,7 +8,7 @@ export class CameraWeb extends WebPlugin implements CameraPlugin {
   }
 
   async getPhoto(options: CameraOptions): Promise<CameraPhoto> {
-    return new Promise<CameraPhoto>((resolve, reject) => {
+    return new Promise<CameraPhoto>(async (resolve, reject) => {
       if (options.webUseInput) {
         this.fileInputExperience(options, resolve);
       } else {
