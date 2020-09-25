@@ -55,7 +55,8 @@ internal extension PHAsset {
         _ = PHCachingImageManager().requestImageData(for: self, options: options) { (data, _, _, _) in
             if let data = data as NSData? {
                 let options = [kCGImageSourceShouldCache as String: kCFBooleanFalse] as CFDictionary
-                if let imgSrc = CGImageSourceCreateWithData(data, options), let metadata = CGImageSourceCopyPropertiesAtIndex(imgSrc, 0, options) as? [String: Any] {
+                if let imgSrc = CGImageSourceCreateWithData(data, options),
+                   let metadata = CGImageSourceCopyPropertiesAtIndex(imgSrc, 0, options) as? [String: Any] {
                     result = metadata
                 }
             }

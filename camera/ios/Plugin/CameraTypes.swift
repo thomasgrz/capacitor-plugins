@@ -3,19 +3,19 @@ import UIKit
 // MARK: - Public
 
 public enum CameraSource: String {
-    case prompt = "prompt"
-    case camera = "camera"
-    case photos = "photos"
+    case prompt
+    case camera
+    case photos
 }
 
 public enum CameraDirection: String {
-    case rear = "rear"
-    case front = "front"
+    case rear
+    case front
 }
 
 public enum CameraResultType: String {
-    case base64 = "base64"
-    case uri = "uri"
+    case base64
+    case uri
     case dataURL = "dataUrl"
 }
 
@@ -56,8 +56,8 @@ public struct CameraResult {
 // MARK: - Internal
 
 internal enum CameraPermissionType: String, CaseIterable {
-    case camera = "camera"
-    case photos = "photos"
+    case camera
+    case photos
 }
 
 internal enum CameraPropertyListKeys: String, CaseIterable {
@@ -115,7 +115,7 @@ internal struct ProcessedImage {
 
     func replaceDictionaryOrientation(atNode node: inout [String: Any], to orientation: Int) {
         for key in node.keys {
-            if key == "Orientation", let _ = node[key] as? Int {
+            if key == "Orientation", (node[key] as? Int) != nil {
                 node[key] = orientation
             } else if var child = node[key] as? [String: Any] {
                 replaceDictionaryOrientation(atNode: &child, to: orientation)

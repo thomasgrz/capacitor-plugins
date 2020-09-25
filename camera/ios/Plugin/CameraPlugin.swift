@@ -43,7 +43,9 @@ public class CameraPlugin: CAPPlugin {
             case .camera:
                 group.enter()
                 AVCaptureDevice.requestAccess(for: .video) { granted in
-                    result[permission.rawValue] = granted ? AVAuthorizationStatus.authorized.authorizationState : AVAuthorizationStatus.denied.authorizationState
+                    result[permission.rawValue] = granted ?
+                        AVAuthorizationStatus.authorized.authorizationState :
+                        AVAuthorizationStatus.denied.authorizationState
                     group.leave()
                 }
             case .photos:
@@ -89,10 +91,8 @@ public class CameraPlugin: CAPPlugin {
 
     private func checkUsageDescriptions() -> String? {
         if let dict = Bundle.main.infoDictionary {
-            for key in CameraPropertyListKeys.allCases {
-                if dict[key.rawValue] == nil {
-                    return key.missingMessage
-                }
+            for key in CameraPropertyListKeys.allCases where dict[key.rawValue] == nil {
+                return key.missingMessage
             }
         }
         return nil
@@ -117,8 +117,10 @@ public class CameraPlugin: CAPPlugin {
             settings.shouldResize = true
         }
         settings.shouldCorrectOrientation = call.getBool("correctOrientation") ?? true
-        settings.userPromptText = CameraPromptText(title: call.getString("promptLabelHeader"), photoAction: call.getString("promptLabelPhoto"), cameraAction: call.getString("promptLabelPicture"), cancelAction: call.getString("promptLabelCancel"))
-
+        settings.userPromptText = CameraPromptText(title: call.getString("promptLabelHeader"),
+                                                   photoAction: call.getString("promptLabelPhoto"),
+                                                   cameraAction: call.getString("promptLabelPicture"),
+                                                   cancelAction: call.getString("promptLabelCancel"))
         if let styleString = call.getString("presentationStyle"), styleString == "popover" {
             settings.presentationStyle = .popover
         } else {
@@ -169,7 +171,8 @@ extension CameraPlugin: UIImagePickerControllerDelegate, UINavigationControllerD
                 "format": "jpeg"
             ])
         } else if settings.resultType == CameraResultType.uri {
-            guard let path = try? saveTemporaryImage(jpeg), let webPath = CAPFileManager.getPortablePath(host: bridge?.getLocalUrl() ?? "", uri: URL(string: path)) else {
+            guard let path = try? saveTemporaryImage(jpeg),
+                  let webPath = CAPFileManager.getPortablePath(host: bridge?.getLocalUrl() ?? "", uri: URL(string: path)) else {
                 call?.reject("Unable to get portable path to file")
                 return
             }
@@ -275,8 +278,8 @@ private extension CameraPlugin {
             imagePicker.popoverPresentationController?.delegate = self
             setCenteredPopover(imagePicker)
         }
-        self.imagePicker!.sourceType = .photoLibrary
-        self.bridge?.viewController?.present(self.imagePicker!, animated: true, completion: nil)
+        imagePicker.sourceType = .photoLibrary
+        self.bridge?.viewController?.present(imagePicker, animated: true, completion: nil)
     }
 
     func saveTemporaryImage(_ data: Data) throws -> String {
